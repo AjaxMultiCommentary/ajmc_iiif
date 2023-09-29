@@ -1,9 +1,14 @@
+import ajmc.commons.file_management as ajmc_files
 import ajmc_iiif
+import ajmc_iiif.iiif as iiif
 import os
 import pathlib
 import shutil
 import wand.image
 
+
+COMMENTARIES_METADATA_SHEET_ID = "1jaSSOF8BWij0seAAgNeGe3Gtofvg9nIp_vPaSj5FtjE"
+COMMENTARIES_METADATA_SHEET_NAME = "bibliographic_metadata"
 
 IIIF_DIRECTORY = f"{os.path.dirname(os.path.realpath(__file__))}/../iiif"
 
@@ -22,8 +27,13 @@ class PublicDomainCommentaries:
         )
         self.iiif_directory = pathlib.Path(IIIF_DIRECTORY)
         self.commentary_ids = ajmc_iiif.PUBLIC_DOMAIN_COMMENTARY_IDS
+        self.metadata = ajmc_files.read_google_sheet(
+            COMMENTARIES_METADATA_SHEET_ID, COMMENTARIES_METADATA_SHEET_NAME
+        )
 
-    def copy_full_size_image(self, commentary_id: str, png: pathlib.Path) -> str:
+    def copy_full_size_image(
+        self, commentary_id: str, png: pathlib.Path
+    ) -> wand.image.Image:
         full_size_dir = (
             self.iiif_directory / commentary_id / png.stem / "full" / "max" / "0"
         )
@@ -31,18 +41,32 @@ class PublicDomainCommentaries:
         full_size = full_size_dir / "default.png"
         full_size_dir.mkdir(parents=True, exist_ok=True)
 
-        return shutil.copyfile(png, str(full_size))
+        shutil.copyfile(png, str(full_size))
+
+        return wand.image.Image(filename=full_size)
 
     def create_derivatives(self):
         for commentary_id in self.commentary_ids:
+            metadata = self.metadata[self.metadata.id == commentary_id]
+
+            if metadata.empty:
+                print(f"No metadata found for {commentary_id}. Skipping.")
+                continue
+
             pngs_dir = self._base_directory / commentary_id / "images" / "png"
 
-            for png in pngs_dir.iterdir():
-                if png.suffix == ".png":
-                    self.copy_full_size_image(commentary_id, png)
-                    self.create_thumbnail(commentary_id, png)
+            manifest = iiif.Manifest(commentary_id, metadata)
 
-    def create_thumbnail(self, commentary_id: str, png: pathlib.Path):
+            # for png in pngs_dir.iterdir():
+            #     if png.suffix == ".png":
+            #         full_size = self.copy_full_size_image(commentary_id, png)
+            #         thumbnail = self.create_thumbnail(commentary_id, png)
+
+            #         info = iiif.Info(commentary_id, png.stem, [full_size, thumbnail])
+
+    def create_thumbnail(
+        self, commentary_id: str, png: pathlib.Path
+    ) -> wand.image.Image:
         thumbnail_dir = (
             self.iiif_directory / commentary_id / png.stem / "full" / "250," / "0"
         )
@@ -55,3 +79,5 @@ class PublicDomainCommentaries:
             # retaining the aspect ratio
             img.transform(resize="x250")
             img.save(filename=thumbnail)
+
+            return img
