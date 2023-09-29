@@ -34,11 +34,11 @@ First, we'll need to copy of the full-sized images to their base location:
 
 ### Thumbnails
  
-From these base images, we can generate thumbnail-sized derivatives:
+From these base images, we can generate thumbnail-sized (250px, let's say) derivatives:
 
 ```bash
 # imagemagick script for thumbnail-sized outputs --- they go in
-# ./ajmc-iiif/Wecklein1894/{image_id}/full/125,/0/default.jpg
+# ./ajmc-iiif/Wecklein1894/{image_id}/full/250,/0/default.jpg
 ```
 
 ### info.json

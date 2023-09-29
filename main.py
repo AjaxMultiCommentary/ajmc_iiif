@@ -1,8 +1,5 @@
-import ajmc_iiif.g_drive as drive
-
+import ajmc_iiif.commentaries
 
 if __name__ == "__main__":
-    client = drive.GDrive()
-    items = client.list_public_domain_commentary_dirs()
-
-    print(items)
+    public = ajmc_iiif.commentaries.prepare_commentaries(public_domain=True)
+    public.create_derivatives()
