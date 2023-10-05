@@ -57,12 +57,13 @@ class PublicDomainCommentaries:
 
             manifest = iiif.Manifest(commentary_id, metadata)
 
-            # for png in pngs_dir.iterdir():
-            #     if png.suffix == ".png":
-            #         full_size = self.copy_full_size_image(commentary_id, png)
-            #         thumbnail = self.create_thumbnail(commentary_id, png)
+            for png in pngs_dir.iterdir():
+                if png.suffix == ".png":
+                    full_size = self.copy_full_size_image(commentary_id, png)
+                    thumbnail = self.create_thumbnail(commentary_id, png)
 
-            #         info = iiif.Info(commentary_id, png.stem, [full_size, thumbnail])
+                    canvas = iiif.Canvas(commentary_id, png, full_size)
+                    info = iiif.Info(commentary_id, png.stem, [full_size, thumbnail])
 
     def create_thumbnail(
         self, commentary_id: str, png: pathlib.Path
