@@ -1,3 +1,4 @@
 ajmc @ git+https://github.com/AjaxMultiCommentary/ajmc@fc20097119c7043e092b26b184d1559e3738b6d0
 pandas==2.1.1
+tqdm==4.66.1
 Wand==0.6.11
