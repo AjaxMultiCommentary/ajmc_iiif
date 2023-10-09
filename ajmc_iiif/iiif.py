@@ -1,3 +1,4 @@
+import json
 import pandas
 import pathlib
 import wand.image
@@ -11,6 +12,8 @@ and examples.
 
 
 class Canvas:
+    __type__ = "Canvas"
+
     def __init__(
         self, commentary_id: str, filename: pathlib.Path, image: wand.image.Image
     ) -> None:
@@ -18,27 +21,31 @@ class Canvas:
         label = f"p. {int(pid)}"
 
         self.id = f"{BASE_URL}/{commentary_id}/canvas/{pid}"
-        self.canvas = {
-            "id": self.id,
-            "type": "Canvas",
-            "label": {"none": [label]},
-            "height": image.height,
-            "width": image.width,
-            "items": [
-                {
-                    "id": f"{BASE_URL}/{commentary_id}/content/{pid}/1",
-                    "type": "AnnotationPage",
-                    "items": [],
-                }
-            ],
-            "annotations": [
-                {
-                    "id": f"{BASE_URL}/{commentary_id}/comments/{pid}/1",
-                    "type": "AnnotationPage",
-                    "items": [],
-                }
-            ],
-        }
+        self.type = self.__type__
+        self.label = { "none": [label] }
+        self.height = image.height
+        self.width = image.width
+        self.items = []
+        self.annotations = []
+
+    def add_annotation(self, annotation):
+                #         {
+                #     "id": f"{BASE_URL}/{commentary_id}/comments/{pid}/1",
+                #     "type": "AnnotationPage",
+                #     "items": [],
+                # }
+        pass
+
+    def add_item(self, item):
+        #                 {
+                #     "id": f"{BASE_URL}/{commentary_id}/content/{pid}/1",
+                #     "type": "AnnotationPage",
+                #     "items": [],
+                # }
+        pass
+
+    def json(self):
+        return json.dumps(self.__dict__)
 
 
 class Thumbnail:
