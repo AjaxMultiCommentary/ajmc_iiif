@@ -1,9 +1,12 @@
+import ajmc_iiif
+import ajmc_iiif.image as image
 import json
 import pandas
 import pathlib
 import wand.image
 
 BASE_URL = "https://ajaxmulticommentary.github.io/ajmc_iiif"
+
 
 """
 See https://iiif.io/api/presentation/3.0/#53-canvas for documentation
@@ -12,47 +15,43 @@ and examples.
 
 
 class Canvas:
-    __type__ = "Canvas"
+    type_ = "Canvas"
 
     def __init__(
         self, commentary_id: str, filename: pathlib.Path, image: wand.image.Image
     ) -> None:
-        pid = filename.stem.split("_")[1]
-        label = f"p. {int(pid)}"
-
-        self.id = f"{BASE_URL}/{commentary_id}/canvas/{pid}"
-        self.type = self.__type__
-        self.label = { "none": [label] }
+        self.commentary_id = commentary_id
+        self.pid = filename.stem.split("_")[1]
+        self.id = f"{BASE_URL}/{commentary_id}/canvas/{self.pid}"
+        self.type = self.type_
+        self.label = {"none": [f"p. {int(self.pid)}"]}
         self.height = image.height
         self.width = image.width
         self.items = []
         self.annotations = []
 
     def add_annotation(self, annotation):
-                #         {
-                #     "id": f"{BASE_URL}/{commentary_id}/comments/{pid}/1",
-                #     "type": "AnnotationPage",
-                #     "items": [],
-                # }
+        self.annotations.append(
+            {
+                "id": f"{BASE_URL}/{self.commentary_id}/comments/{self.pid}/1",
+                "type": "AnnotationPage",
+                "items": [annotation],
+            }
+        )
         pass
 
     def add_item(self, item):
-        #                 {
-                #     "id": f"{BASE_URL}/{commentary_id}/content/{pid}/1",
-                #     "type": "AnnotationPage",
-                #     "items": [],
-                # }
+        self.items.append(
+            {
+                "id": f"{BASE_URL}/{self.commentary_id}/content/{self.pid}/1",
+                "type": "AnnotationPage",
+                "items": [item],
+            }
+        )
         pass
 
     def json(self):
         return json.dumps(self.__dict__)
-
-
-class Thumbnail:
-    def __init__(
-        self,
-    ) -> None:
-        pass
 
 
 class Manifest:
@@ -114,22 +113,33 @@ class Collection:
 
 
 class Info:
+    type_ = "ImageService3"
+    protocol = "http://iiif.io/api/image"
+    profile = "level0"
+    iiif_keys = ["id", "type", "height", "width", "sizes"]
+
     def __init__(
-        self, commentary_id: str, image_id: str, images: list[wand.image.Image]
+        self, commentary_id: str, image_id: str, images: list[image.Image]
     ) -> None:
         self.commentary_id = commentary_id
         self.id = f"{BASE_URL}/{commentary_id}/{image_id}"
         self.image_id = image_id
-        self.images = images
-        self.info = {
-            "@context": "http://iiif.io/api/image/3/context.json",
-            "id": self.id,
-            "type": "ImageService3",
-            "protocol": "http://iiif.io/api/image",
-            "profile": "level0",
-            "width": images[0].width,
-            "height": images[0].height,
-            "sizes": [
-                {"width": image.width, "height": image.height} for image in images
-            ],
-        }
+        self.type = self.type_
+        self.height = images[0].height
+        self.width = images[0].width
+        self.sizes = [
+            {"width": image.width, "height": image.height} for image in images
+        ]
+
+    def json(self):
+        iiif_info = {k: v for k, v in self.__dict__.items() if k in self.iiif_keys}
+        return json.dumps(
+            {"@context": "http://iiif.io/api/image/3/context.json"} | iiif_info
+        )
+
+    def write(self):
+        with open(
+            ajmc_iiif.IIIF_DIRECTORY / self.commentary_id / self.image_id / "info.json",
+            "w",
+        ) as f:
+            f.write(self.json())
