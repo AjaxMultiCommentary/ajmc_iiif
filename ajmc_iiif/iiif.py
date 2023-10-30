@@ -61,55 +61,64 @@ class Manifest:
         year = metadata.year.values[0]
         publisher = metadata.publisher.values[0]
         language = metadata.language.values[0]
-        self.id = f"{BASE_URL}/{commentary_id}"
 
-        self.manifest = {
-            "@context": "http://iiif.io/api/presentation/2/context.json",
-            "@id": self.id,
-            "@type": "sc:Manifest",
-            "license": "https://github.com/AjaxMultiCommentary/ajmc_iiif/blob/main/LICENSE",
-            "attribution": "Provided by the Ajax Multi-Commentary Project (AjMC)",
-            "metadata": [
-                {"label": "Author", "value": author},
-                {"label": "Title", "value": title},
-                {"label": "Published", "value": f"{publisher} {year}"},
-                {"label": "Language", "value": language},
-            ],
-            "items": [
-                {
-                    "@id": f"{self.id}/sequence/normal",
-                    "@type": "sc:Sequence",
-                    "label": "Published Page Order",
-                    "viewingDirection": "left-to-right",
-                    "viewingHint": "paged",
-                    "canvases": [],
-                }
-            ],
-        }
+        self.id = f"{BASE_URL}/{commentary_id}"
+        self.type = "Manifest"
+        self.label = {"en": [title]}
+        self.metadata = [
+            {"label": "Author", "value": author},
+            {"label": "Title", "value": title},
+            {"label": "Published", "value": f"{publisher} {year}"},
+            {"label": "Language", "value": language},
+        ]
+
+        self.license = (
+            "https://github.com/AjaxMultiCommentary/ajmc_iiif/blob/main/LICENSE",
+        )
+        self.attribution = ("Provided by the Ajax Multi-Commentary Project (AjMC)",)
+        self.items = [
+            {
+                "@id": f"{self.id}/sequence/normal",
+                "@type": "sc:Sequence",
+                "label": "Published Page Order",
+                "viewingDirection": "left-to-right",
+                "viewingHint": "paged",
+                "canvases": [],
+            }
+        ]
 
     def append_canvas(self, canvas: Canvas):
-        pass
+        self.items.append(canvas.__dict__)
+
+    def json(self):
+        return json.dumps(
+            {"@context": "http://iiif.io/api/presentation/2/context.json"}
+            | self.__dict__
+        )
 
 
 class Collection:
     def __init__(
         self, collection_id: str, collection_label: str, collection_summary: str
     ) -> None:
-        self.collection = {
-            "@context": "http://iiif.io/api/presentation/3/context.json",
-            "id": f"{BASE_URL}/collections/{collection_id}",
-            "type": "Collection",
-            "label": {"en": [collection_label]},
-            "summary": {"en": [collection_summary]},
-            "requiredStatement": {
-                "label": {"en": ["Attribution"]},
-                "value": {"en": ["Provided by the Ajax Multi-Commentary Project"]},
-            },
-            "items": [],
+        self.id = f"{BASE_URL}/collections/{collection_id}"
+        self.type = "Collection"
+        self.label = {"en": [collection_label]}
+        self.summary = {"en": [collection_summary]}
+        self.requiredStatement = {
+            "label": {"en": ["Attribution"]},
+            "value": {"en": ["Provided by the Ajax Multi-Commentary Project"]},
         }
+        self.items = []
 
     def append_manifest(self, manifest: Manifest):
-        pass
+        self.items.append(manifest.__dict__)
+
+    def json(self):
+        return json.dumps(
+            {"@context": "http://iiif.io/api/presentation/3/context.json"}
+            | self.__dict__
+        )
 
 
 class Info:
