@@ -38,7 +38,8 @@ class PublicDomainCommentaries:
         self._base_directory = pathlib.Path(
             os.getenv("PUBLIC_DOMAIN_COMMENTARIES_BASE_DIR", "")
         )
-        self.commentary_ids = ajmc_variables.PD_COMM_IDS
+        # we keep the public domain commentary IDs and remove the external ones (`ajmc_variables.EXTERNAL_COMM_IDS`)
+        self.commentary_ids = [comm_id for comm_id in ajmc_variables.PD_COMM_IDS if comm_id not in ajmc_variables.EXTERNAL_COMM_IDS]
         self.metadata = ajmc_files.read_google_sheet(
             COMMENTARIES_METADATA_SHEET_ID, COMMENTARIES_METADATA_SHEET_NAME
         )

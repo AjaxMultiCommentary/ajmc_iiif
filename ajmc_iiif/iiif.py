@@ -125,13 +125,24 @@ class Info:
     type_ = "ImageService3"
     protocol = "http://iiif.io/api/image"
     profile = "level0"
-    iiif_keys = ["id", "type", "height", "width", "sizes"]
+    iiif_keys = [
+        "id",
+        "protocol", 
+        "profile", 
+        "type", 
+        "height",
+        "width",
+        "sizes",
+        "preferredFormats"
+    ]
 
     def __init__(
         self, commentary_id: str, image_id: str, images: list[image.Image]
     ) -> None:
         self.commentary_id = commentary_id
         self.id = f"{BASE_URL}/{commentary_id}/{image_id}"
+        self.protocol = "http://iiif.io/api/image"
+        self.profile = "level0"
         self.image_id = image_id
         self.type = self.type_
         self.height = images[0].height
@@ -139,6 +150,10 @@ class Info:
         self.sizes = [
             {"width": image.width, "height": image.height} for image in images
         ]
+        #self.tiles = [
+        #    {"width": image.width, "height": image.height, "scaleFactors": [1]} for image in images
+        #]
+        self.preferredFormats = ["png"]
 
     def json(self):
         iiif_info = {k: v for k, v in self.__dict__.items() if k in self.iiif_keys}
