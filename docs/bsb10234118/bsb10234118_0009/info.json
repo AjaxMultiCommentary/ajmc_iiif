@@ -1,1 +1,1 @@
-{"@context": "http://iiif.io/api/image/3/context.json", "id": "https://ajaxmulticommentary.github.io/ajmc_iiif/bsb10234118/bsb10234118_0009", "type": "ImageService3", "height": 2457, "width": 1460, "sizes": [{"width": 1460, "height": 2457}, {"width": 149, "height": 250}]}
+{"@context": "http://iiif.io/api/image/3/context.json", "id": "https://ajaxmulticommentary.github.io/ajmc_iiif/bsb10234118/bsb10234118_0009", "type": "ImageService3", "height": 2457, "width": 1460, "sizes": [{"width": 1460, "height": 2457}, {"width": 149, "height": 250}], "preferredFormats": ["png"]}
