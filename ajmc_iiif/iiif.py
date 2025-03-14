@@ -5,7 +5,7 @@ import pandas
 import pathlib
 import wand.image
 
-BASE_URL = "https://ajaxmulticommentary.github.io/ajmc_iiif"
+BASE_URL = "https://iiif.ajmc.ch"
 
 
 """
